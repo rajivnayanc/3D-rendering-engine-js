@@ -53,7 +53,7 @@ vec3.divide = (u,v)=>{
     if(u instanceof vec3) return u.divide(v);
 }
 vec3.dot = (u,v)=>{
-    return u.x()*v.x() + u.y()*v.y() + u.z()*v.z();
+    return u.x*v.x + u.y*v.y + u.z*v.z;
 }
 vec3.cross = (u,v)=>{
     return new vec3(u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x);
