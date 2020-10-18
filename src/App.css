@@ -22,3 +22,27 @@ body{
   left: 50%;
   transform: translate(-50%, -50%);
 }
+#ImageBuildProgressBar{
+  height: 30px;
+  width: 100%;
+  visibility: hidden;
+  background: black;
+  position: absolute;
+  top:-50px;
+  color:white;
+}
+.btn{
+  border: none;
+  padding: 10px;
+  background-color: blue;
+  color:white
+}
+#buildImageBtn{
+  position: absolute;
+  left:-150px
+}
+#buildImageBtn2{
+  position: absolute;
+  left:-150px;
+  top:60px;
+}
