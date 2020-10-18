@@ -4,8 +4,6 @@ class vec3{
         this.y = y || 0;
         this.z = z || 0;
     }
-// }
-// vec3.prototype = {
     negative = ()=>{
         return new vec3(-this.x, -this.y, -this.z);
     }
@@ -37,7 +35,7 @@ class vec3{
 };
 
 vec3.print = (v)=>{
-    if(v instanceof vec3) console.log(v.x(), v.y(), v.z());
+    if(v instanceof vec3) console.log(v.x, v.y, v.z);
 }
 vec3.add = (u,v)=>{
     if(u instanceof vec3) return u.add(v);
@@ -59,6 +57,9 @@ vec3.dot = (u,v)=>{
 }
 vec3.cross = (u,v)=>{
     return new vec3(u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x);
+}
+vec3.unit = (u)=>{
+    return u.divide(u.length());
 }
 class point3 extends vec3{};
 class color extends vec3{};

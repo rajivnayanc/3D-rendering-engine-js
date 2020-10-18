@@ -4,7 +4,7 @@ class MainComponent extends React.Component {
     constructor(props){
         super(props);
         const aspectRatio = 16/9;
-        const height = 480;
+        const height = 300;
         const width = height*aspectRatio; 
         this.state = {
             aspectRatio:aspectRatio,
