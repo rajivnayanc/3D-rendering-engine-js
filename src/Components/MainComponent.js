@@ -3,13 +3,19 @@ import Canvas from './Canvas';
 class MainComponent extends React.Component {
     constructor(props){
         super(props);
-        const aspectRatio = 16/9;
-        const height = 300;
-        const width = height*aspectRatio; 
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        // window.outerHeight
+        console.log(windowWidth,'x',windowHeight);
+        const aspect = windowWidth/windowHeight;
+        const scale = 0.25;
+        const width = Math.floor(windowWidth*scale);
+        const height = Math.floor(windowHeight*scale);
         this.state = {
-            aspectRatio:aspectRatio,
+            aspectRatio:aspect,
             width:width,
-            height:height
+            height:height,
+            samples_per_pixel:1
         }
     }
     render(){
@@ -17,7 +23,7 @@ class MainComponent extends React.Component {
             <div className="container">
                 <div className="main-content">
                     <div className="canvas-container">
-                        <Canvas width = {this.state.width} height={this.state.height}/>
+                        <Canvas samples_per_pixel={this.state.samples_per_pixel} width = {this.state.width} height={this.state.height}/>
                     </div>
                 </div>
             </div>
