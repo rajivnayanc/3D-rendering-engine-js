@@ -2,6 +2,8 @@
 
 This project implements basic RayTracing and Rasterization using ReactJS. More features will be added soon. This project is based on 'Ray Tracing in One Weekend' tutorial.
 
+The project is deployed [HERE](https://rajivnayanc.github.io/3D-rendering-engine-js)
+
 ## To-Do
 
 ### Features
@@ -35,4 +37,4 @@ This project implements basic RayTracing and Rasterization using ReactJS. More f
 - [X] `main` branch for final code.
 - [X] GitHub Action for CI for PR @ `dev` branch
 - [X] GitHub Action for CI for PR @ `main` branch
-- [ ] GitHub Action for CD at github-pages.
+- [X] GitHub Action for CD at github-pages.
