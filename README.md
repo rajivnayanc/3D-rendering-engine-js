@@ -34,5 +34,5 @@ This project implements basic RayTracing and Rasterization using ReactJS. More f
 - [ ] `dev` branch for development purpose
 - [ ] `main` branch for final code.
 - [ ] GitHub Action for CI for PR @ `dev` branch
-- [ ] GitHub Action for CI for push @ `main` branch
+- [ ] GitHub Action for CI for PR @ `main` branch
 - [ ] GitHub Action for CD at github-pages.

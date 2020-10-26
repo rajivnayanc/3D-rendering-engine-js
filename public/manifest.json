@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "3D Scene Renderer",
+  "name": "Rendere a real looking 3D Scene",
   "icons": [
     {
       "src": "favicon.ico",

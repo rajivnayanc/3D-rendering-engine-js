@@ -1,0 +1,19 @@
+name: Continuous Integration
+on:
+  pull_request:
+    branches:
+      - [main,dev]
+  push:
+    branches:
+      - dev
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2.3.2
+      - name: Install Dependencies
+        run: npm install
+      - name: Run Tests
+        run: npm test
