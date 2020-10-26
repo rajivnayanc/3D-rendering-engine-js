@@ -2,7 +2,7 @@ import {vec3,point3} from './vec3';
 
 class ray{
     constructor(origin, dir){
-        if(origin instanceof point3 && dir instanceof vec3 ){
+        if(origin instanceof vec3 && dir instanceof vec3 ){
             this.orig = origin;
             this.dir = dir;
         }else{

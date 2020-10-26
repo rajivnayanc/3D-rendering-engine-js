@@ -5,10 +5,8 @@ class MainComponent extends React.Component {
         super(props);
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
-        // window.outerHeight
-        console.log(windowWidth,'x',windowHeight);
         const aspect = windowWidth/windowHeight;
-        const scale = 0.25;
+        const scale = 0.5;
         const width = Math.floor(windowWidth*scale);
         const height = Math.floor(windowHeight*scale);
         this.state = {

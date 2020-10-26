@@ -61,6 +61,12 @@ vec3.cross = (u,v)=>{
 vec3.unit = (u)=>{
     return u.divide(u.length());
 }
+
+vec3.equals=(u,v)=>{
+    if(u instanceof vec3 && v instanceof vec3)
+        return u.x===v.x && u.y===v.y && u.z===v.z;
+    return false;
+}
 class point3 extends vec3{};
 class color extends vec3{};
 export {vec3, point3, color};
