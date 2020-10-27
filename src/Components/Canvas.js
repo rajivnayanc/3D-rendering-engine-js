@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import {vec3, point3, color} from './Utils/vec3';
+// import {vec3, point3, color} from './Utils/vec3';
+import * as vec3 from './Utils/vec3/vec3';
 import ray from './Utils/ray';
 import {hit_record} from './Hittables/hittable';
 import hittable_list from './Hittables/hittable_list';
@@ -28,28 +29,27 @@ export class Canvas extends Component {
         });        
     }
     hit_sphere = (center, radius, r)=>{
-        if( r instanceof ray && center instanceof vec3){
-            const oc = vec3.subtract(r.origin(),center);
-            const a = r.direction().length_squared();
-            const half_b = vec3.dot(oc, r.direction());
-            const c = oc.length_squared() - radius*radius;
-            const discriminant = half_b*half_b - a*c;
-            if(discriminant<0){
-                return -1.0
-            }
-            return Math.min((-half_b - Math.sqrt(discriminant))/a,(-half_b + Math.sqrt(discriminant))/a)
+        let oc = vec3.create();
+        oc = vec3.subtract(oc, r.origin(), this.center);
+        const a = vec3.squaredLength(r.direction());
+        const half_b = vec3.dot(oc, r.direction());
+        const c = vec3.squaredLength(oc) - this.radius*this.radius;
+        const discriminant = half_b*half_b - a*c;
+        if(discriminant<0){
+            return -1.0
         }
-        return -1.0;
+        return Math.min((-half_b - Math.sqrt(discriminant))/a,(-half_b + Math.sqrt(discriminant))/a)
     }
     ray_color = (r, b, world)=>{
         let rec = new hit_record();
         if(world.hit(r,0, Math.pow(10,10)/1.0, rec)){
-            return vec3.multiply(0.5, rec.normal.add(new color(1,1,1)))
+            return vec3.scale(vec3.create(),vec3.add(vec3.create(), rec.normal, vec3.fromValues(1,1,1)),0.5)
         }
-        const unit_direction = vec3.unit(r.direction());
-        let t = Math.abs(unit_direction.y);
-        return color.multiply(new color(1,1,1),(1.0-t)).add(color.multiply(t, new color(0.5, 0.7, b)));
-
+        const unit_direction = vec3.unit_vector(r.direction());
+        let t = Math.abs(unit_direction[1]);
+        let out1 = vec3.scale(vec3.create(), vec3.fromValues(1,1,1),(1.0-t));
+        let out2 = vec3.scale(vec3.create(), vec3.fromValues(0.5, 0.7, b), t);
+        return vec3.add(vec3.create(), out1, out2);
     }
     buildImage = (color_b)=>{
         this.setState({
@@ -76,38 +76,40 @@ export class Canvas extends Component {
 
         // World
         let world = new hittable_list();
-        world.add(new sphere(new point3(0,0,-1), 0.5));
-        world.add(new sphere(new point3(-1,0,-1), 0.25));
-        world.add(new sphere(new point3(1,0,-1), 0.25));
-        world.add(new sphere(new point3(0,1,-1), 0.25));
+        world.add(new sphere(vec3.fromValues(0,0,-1), 0.5));
+        world.add(new sphere(vec3.fromValues(-1,0,-1), 0.25));
+        world.add(new sphere(vec3.fromValues(1,0,-1), 0.25));
+        world.add(new sphere(vec3.fromValues(0,1,-1), 0.25));
 
-        world.add(new sphere(new point3(2,0,1), 0.5));
-        world.add(new sphere(new point3(1,0,1), 0.25));
-        world.add(new sphere(new point3(3,0,1), 0.25));
-        world.add(new sphere(new point3(2,1,1), 0.25));
+        world.add(new sphere(vec3.fromValues(2,0,1), 0.5));
+        world.add(new sphere(vec3.fromValues(1,0,1), 0.25));
+        world.add(new sphere(vec3.fromValues(3,0,1), 0.25));
+        world.add(new sphere(vec3.fromValues(2,1,1), 0.25));
 
-        world.add(new sphere(new point3(-2,0,2), 0.5));
-        world.add(new sphere(new point3(-1,0,2.4), 0.25));
-        world.add(new sphere(new point3(-3,0,2.9), 0.25));
-        world.add(new sphere(new point3(-2,1,3), 0.25));
+        world.add(new sphere(vec3.fromValues(-2,0,2), 0.5));
+        world.add(new sphere(vec3.fromValues(-1,0,2.4), 0.25));
+        world.add(new sphere(vec3.fromValues(-3,0,2.9), 0.25));
+        world.add(new sphere(vec3.fromValues(-2,1,3), 0.25));
 
-        world.add(new sphere(new point3(0,-100.5,-1), 100));
+        world.add(new sphere(vec3.fromValues(0,-100.5,-1), 100));
 
         //Camera Properties
         const viewport_height = 2.0;
         const viewport_width = aspect_ratio*viewport_height;
         const focal_length = 1.0
 
-        const origin = new point3(0,0, color_b);
-        const horizontal = new vec3(viewport_width, 0, 0);
-        const vertical = new vec3(0, viewport_height, 0);
-        const lower_left_corner = origin.subtract(horizontal.divide(2)).subtract(vertical.divide(2)).subtract(new vec3(0,0,focal_length));
-        
+        const origin = vec3.fromValues(0,0, color_b);
+        const horizontal = vec3.fromValues(viewport_width, 0, 0);
+        const vertical = vec3.fromValues(0, viewport_height, 0);
+        let lower_left_corner = vec3.create();
+        vec3.scaleAndAdd(lower_left_corner,origin,horizontal,-0.5);
+        vec3.scaleAndAdd(lower_left_corner,lower_left_corner,vertical,-0.5);
+        vec3.subtract(lower_left_corner,lower_left_corner, vec3.fromValues(0,0, focal_length));
+
         // Render
         let ctx = this.state.ctx;
         let img = ctx.getImageData(0, 0, image_width, image_height);
         let pixels = img.data;
-        console.log(pixels.length);
         let numPixels = pixels.length/4;
         let k = 1;
         let accumulator = new Float32Array(numPixels*3);
@@ -121,11 +123,15 @@ export class Canvas extends Component {
                     const index = ((image_height-j-1) * image_width + i) * 3;
                     let u = (i+Math.random())/(image_width+1);
                     let v = (j+Math.random())/(image_height+1);
-                    const r = new ray(origin, lower_left_corner.add(horizontal.multiply(u)).add(vertical.multiply(v)).subtract(origin))
+                    let direction = vec3.create();
+                    vec3.scaleAndAdd(direction,lower_left_corner,horizontal,u);
+                    vec3.scaleAndAdd(direction,direction,vertical,v);
+                    vec3.subtract(direction,direction, origin);
+                    const r = new ray(origin, direction)
                     let temp_color = this.ray_color(r, Math.abs(color_b), world);
-                    accumulator[index] += temp_color.x
-                    accumulator[index+1] += temp_color.y
-                    accumulator[index+2] += temp_color.z
+                    accumulator[index] += temp_color[0];
+                    accumulator[index+1] += temp_color[1];
+                    accumulator[index+2] += temp_color[2];
                 }
             }
             for(let p =0;p<numPixels;p++){

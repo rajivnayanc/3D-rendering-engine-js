@@ -1,13 +1,13 @@
-import {vec3,point3} from './vec3';
+import * as vec3 from './vec3/vec3';
 
 class ray{
     constructor(origin, dir){
-        if(origin instanceof vec3 && dir instanceof vec3 ){
+        if(origin && dir){
             this.orig = origin;
             this.dir = dir;
         }else{
-            this.orig = new point3(0,0,0);
-            this.dir = new vec3(0,0,0);
+            this.orig = vec3.fromValues(0,0,0);
+            this.dir = vec3.fromValues(0,0,0);
         }
     }
 
@@ -15,7 +15,8 @@ class ray{
     direction = ()=>this.dir;
 
     at = (t)=>{
-        return vec3.add(this.orig, vec3.multiply(this.dir, t))
+        let out = vec3.create();
+        return vec3.scaleAndAdd(out,this.orig, this.dir, t)
     }
 }
 
