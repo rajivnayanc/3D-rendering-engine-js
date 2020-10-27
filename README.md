@@ -1,6 +1,6 @@
 # 3D-Rendering Engine in JavaScript
 
-This project implements basic RayTracing and Rasterization using ReactJS. More features will be added soon. This project is based on 'Ray Tracing in One Weekend' tutorial.
+This project implements basic RayTracing and Rasterization using ReactJS. More features will be added soon. This project is based on [Ray Tracing in One Weekend](https://raytracing.github.io/) tutorial series.
 
 The project is deployed [HERE](https://rajivnayanc.github.io/3D-rendering-engine-js)
 
@@ -24,7 +24,6 @@ The project is deployed [HERE](https://rajivnayanc.github.io/3D-rendering-engine
 
 
 ### Tests
-- [X] for `vec3.js`
 - [X] for `ray.js`
 - [ ] for `hittable_list.js`
 - [ ] for `hittable.js`

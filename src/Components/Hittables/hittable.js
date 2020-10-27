@@ -1,7 +1,8 @@
-import {vec3, point3} from '../Utils/vec3';
+import * as vec3 from '../Utils/vec3/vec3';
+
 function hit_record(){
-    this.p = new point3(0,0,0);
-    this.normal = new vec3(0,0,0);
+    this.p = vec3.create();
+    this.normal = vec3.create();
     this.t = 0;
     this.front_face = false;
     this.set_face_normal = (r, outward_normal)=>{
