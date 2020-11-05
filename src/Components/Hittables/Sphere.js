@@ -2,10 +2,11 @@ import {hittable} from './hittable';
 import * as vec3 from '../Utils/vec3/vec3';
 
 class sphere extends hittable{
-    constructor(cen, r){
+    constructor(cen, r, material){
         super();
         this.center = cen;
-        this.radius = r
+        this.radius = r;
+        this.material = material;
     }
 
     hit = (r, t_min, t_max, rec)=>{
@@ -28,6 +29,7 @@ class sphere extends hittable{
                 outward_normal = vec3.subtract(outward_normal, rec.p, this.center);
                 outward_normal = vec3.unit_vector(outward_normal);
                 rec.set_face_normal(r, outward_normal);
+                rec.material = this.material;
                 return true;
             }
             temp = (-half_b+root)/a;
@@ -38,6 +40,7 @@ class sphere extends hittable{
                 outward_normal = vec3.subtract(outward_normal, rec.p, this.center);
                 outward_normal = vec3.unit_vector(outward_normal);
                 rec.set_face_normal(r, outward_normal);
+                rec.material = this.material;
                 return true;
             } 
         }

@@ -5,15 +5,19 @@ function hit_record(){
     this.normal = vec3.create();
     this.t = 0;
     this.front_face = false;
+    this.material=null;
+
     this.set_face_normal = (r, outward_normal)=>{
         this.front_face = vec3.dot(r.direction(),outward_normal);
         this.normal = this.front_face?outward_normal:-outward_normal;
     }
+    
     this.copy = (rec)=>{
         this.p = rec.p;
         this.normal = rec.normal;
         this.t = rec.t;
         this.front_face = rec.front_face;
+        this.material = rec.material;
     }
 }
 
