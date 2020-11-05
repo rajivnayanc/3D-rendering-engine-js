@@ -13,7 +13,7 @@ class MainComponent extends React.Component {
             aspectRatio:aspect,
             width:width,
             height:height,
-            samples_per_pixel:1
+            samples_per_pixel:100
         }
     }
     render(){

@@ -5,6 +5,8 @@ import ray from './Utils/ray';
 import {hit_record} from './Hittables/hittable';
 import hittable_list from './Hittables/hittable_list';
 import sphere from './Hittables/Sphere';
+import camera from './Utils/camera';
+import * as utils from './Utils/utils';
 
 export class Canvas extends Component {
     constructor(props){
@@ -40,10 +42,42 @@ export class Canvas extends Component {
         }
         return Math.min((-half_b - Math.sqrt(discriminant))/a,(-half_b + Math.sqrt(discriminant))/a)
     }
-    ray_color = (r, b, world)=>{
+    ray_color = (r, b, world, depth)=>{
         let rec = new hit_record();
-        if(world.hit(r,0, Math.pow(10,10)/1.0, rec)){
-            return vec3.scale(vec3.create(),vec3.add(vec3.create(), rec.normal, vec3.fromValues(1,1,1)),0.5)
+        if(depth<=0){
+            return vec3.create();
+        }
+        if(world.hit(r,0.001, Math.pow(10,10)/1.0, rec)){
+            let target = vec3.create();
+            let type = 'sphere';
+            switch (type) {
+                case 'sphere':
+                    vec3.add(target,rec.p,rec.normal);
+                    vec3.add(target,target, utils.random_unit_vector());
+                    break;
+                case 'hemisphere':
+                    vec3.add(target,rec.p,utils.random_in_hemisphere(rec.normal));
+                    break
+                default:
+                    break;
+            }
+
+            return vec3.scale(
+                vec3.create(),
+                this.ray_color(
+                    new ray(rec.p, 
+                        vec3.subtract(
+                            vec3.create(),
+                            target,
+                            rec.p
+                        )
+                    ),
+                    b,
+                    world,
+                    depth-1
+                ),
+                0.5
+            );
         }
         const unit_direction = vec3.unit_vector(r.direction());
         let t = Math.abs(unit_direction[1]);
@@ -56,23 +90,19 @@ export class Canvas extends Component {
             animate:false
         },()=>{
             this.b = 0;
-            this.drawImage(color_b);
+            this.drawImage(color_b, false);
         })
     }
 
-    clamp = (x, min, max)=>{
-        if(x<min) return min;
-        if(x>max) return max;
-        return x;
-    }
-    drawImage = (color_b)=> {
+    drawImage = (color_b, is_animate)=> {
         // Image Properties
         let canvasDOM = this.state.canvasDOM;
         canvasDOM.style.visibility="visible";
         const image_height = canvasDOM.height;
         const image_width = canvasDOM.width;
         const aspect_ratio = image_width/image_height;
-        const samples_per_pixel = this.props.samples_per_pixel;
+        let samples_per_pixel = this.props.samples_per_pixel;
+        const max_depth = 50;
 
         // World
         let world = new hittable_list();
@@ -95,23 +125,18 @@ export class Canvas extends Component {
 
         //Camera Properties
         const viewport_height = 2.0;
-        const viewport_width = aspect_ratio*viewport_height;
         const focal_length = 1.0
-
-        const origin = vec3.fromValues(0,0, color_b);
-        const horizontal = vec3.fromValues(viewport_width, 0, 0);
-        const vertical = vec3.fromValues(0, viewport_height, 0);
-        let lower_left_corner = vec3.create();
-        vec3.scaleAndAdd(lower_left_corner,origin,horizontal,-0.5);
-        vec3.scaleAndAdd(lower_left_corner,lower_left_corner,vertical,-0.5);
-        vec3.subtract(lower_left_corner,lower_left_corner, vec3.fromValues(0,0, focal_length));
+        const cam = new camera(aspect_ratio, viewport_height, focal_length, color_b );
 
         // Render
         let ctx = this.state.ctx;
         let img = ctx.getImageData(0, 0, image_width, image_height);
         let pixels = img.data;
         let numPixels = pixels.length/4;
-        let k = 1;
+        if(is_animate)
+            samples_per_pixel=1;
+        
+        let k = is_animate?samples_per_pixel:1;
         let accumulator = new Float32Array(numPixels*3);
         let passText = document.getElementById('passValue');
         let timeTaken = document.getElementById('timeTaken');
@@ -123,12 +148,8 @@ export class Canvas extends Component {
                     const index = ((image_height-j-1) * image_width + i) * 3;
                     let u = (i+Math.random())/(image_width+1);
                     let v = (j+Math.random())/(image_height+1);
-                    let direction = vec3.create();
-                    vec3.scaleAndAdd(direction,lower_left_corner,horizontal,u);
-                    vec3.scaleAndAdd(direction,direction,vertical,v);
-                    vec3.subtract(direction,direction, origin);
-                    const r = new ray(origin, direction)
-                    let temp_color = this.ray_color(r, Math.abs(color_b), world);
+                    const r = cam.get_ray(u, v);
+                    let temp_color = this.ray_color(r, Math.abs(color_b), world, max_depth);
                     accumulator[index] += temp_color[0];
                     accumulator[index+1] += temp_color[1];
                     accumulator[index+2] += temp_color[2];
@@ -137,9 +158,9 @@ export class Canvas extends Component {
             for(let p =0;p<numPixels;p++){
                 const ind = p*4;
                 const ind2 = p*3;
-                pixels[ind] = Math.floor(this.clamp(accumulator[ind2]/k,0,0.9999)*256);
-                pixels[ind+1] = Math.floor(this.clamp(accumulator[ind2+1]/k, 0, 0.9999)*256);
-                pixels[ind+2] = Math.floor(this.clamp(accumulator[ind2+2]/k, 0, 0.9999)*256);
+                pixels[ind] = Math.floor(utils.clamp(Math.sqrt(accumulator[ind2]/k),0,0.9999)*256);
+                pixels[ind+1] = Math.floor(utils.clamp(Math.sqrt(accumulator[ind2+1]/k), 0, 0.9999)*256);
+                pixels[ind+2] = Math.floor(utils.clamp(Math.sqrt(accumulator[ind2+2]/k), 0, 0.9999)*256);
                 pixels[ind+3] = 255;
             }
             ctx.putImageData(img, 0,0)
@@ -157,7 +178,7 @@ export class Canvas extends Component {
     animate = ()=>{
         if(this.state.animate){
             requestAnimationFrame(this.animate);
-            this.drawImage(this.b);
+            this.drawImage(this.b, true);
             this.b += 0.2;
             if(this.b>20){
                 this.b =0;
