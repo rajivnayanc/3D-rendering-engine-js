@@ -7,7 +7,7 @@ function camera(aspect_ratio, viewport_height, focal_length, color_b){
         this.viewport_width = aspect_ratio*viewport_height;
         this.focal_length = focal_length;
 
-        this.origin = vec3.fromValues(0,0, color_b);
+        this.origin = vec3.fromValues(0,color_b, 3*color_b);
         this.horizontal = vec3.fromValues(this.viewport_width, 0, 0);
         this.vertical = vec3.fromValues(0, viewport_height, 0);
         this.lower_left_corner = vec3.create();

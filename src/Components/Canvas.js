@@ -7,7 +7,7 @@ import hittable_list from './Hittables/hittable_list';
 import sphere from './Hittables/Sphere';
 import camera from './Utils/camera';
 import * as utils from './Utils/utils';
-
+import {lambertian, metal} from './Hittables/materials/material';
 export class Canvas extends Component {
     constructor(props){
         super(props);
@@ -30,59 +30,28 @@ export class Canvas extends Component {
             ctx:ctx
         });        
     }
-    hit_sphere = (center, radius, r)=>{
-        let oc = vec3.create();
-        oc = vec3.subtract(oc, r.origin(), this.center);
-        const a = vec3.squaredLength(r.direction());
-        const half_b = vec3.dot(oc, r.direction());
-        const c = vec3.squaredLength(oc) - this.radius*this.radius;
-        const discriminant = half_b*half_b - a*c;
-        if(discriminant<0){
-            return -1.0
-        }
-        return Math.min((-half_b - Math.sqrt(discriminant))/a,(-half_b + Math.sqrt(discriminant))/a)
-    }
-    ray_color = (r, b, world, depth)=>{
+    ray_color = (r, world, depth)=>{
         let rec = new hit_record();
         if(depth<=0){
             return vec3.create();
         }
         if(world.hit(r,0.001, Math.pow(10,10)/1.0, rec)){
-            let target = vec3.create();
-            let type = 'sphere';
-            switch (type) {
-                case 'sphere':
-                    vec3.add(target,rec.p,rec.normal);
-                    vec3.add(target,target, utils.random_unit_vector());
-                    break;
-                case 'hemisphere':
-                    vec3.add(target,rec.p,utils.random_in_hemisphere(rec.normal));
-                    break
-                default:
-                    break;
-            }
+            let scattered = new ray();
+            let attenuation = vec3.create();
+            if(rec.material.scatter(r, rec, attenuation,scattered)){
+                return vec3.multiply(
+                    vec3.create(),
+                    this.ray_color(scattered,world,depth-1),
+                    attenuation
+                );
 
-            return vec3.scale(
-                vec3.create(),
-                this.ray_color(
-                    new ray(rec.p, 
-                        vec3.subtract(
-                            vec3.create(),
-                            target,
-                            rec.p
-                        )
-                    ),
-                    b,
-                    world,
-                    depth-1
-                ),
-                0.5
-            );
+            }
+            return vec3.create();
         }
         const unit_direction = vec3.unit_vector(r.direction());
         let t = Math.abs(unit_direction[1]);
         let out1 = vec3.scale(vec3.create(), vec3.fromValues(1,1,1),(1.0-t));
-        let out2 = vec3.scale(vec3.create(), vec3.fromValues(0.5, 0.7, b), t);
+        let out2 = vec3.scale(vec3.create(), vec3.fromValues(0.5, 0.7, 1.0), t);
         return vec3.add(vec3.create(), out1, out2);
     }
     buildImage = (color_b)=>{
@@ -94,7 +63,7 @@ export class Canvas extends Component {
         })
     }
 
-    drawImage = (color_b, is_animate)=> {
+    drawImage = (camera_z, is_animate)=> {
         // Image Properties
         let canvasDOM = this.state.canvasDOM;
         canvasDOM.style.visibility="visible";
@@ -106,27 +75,32 @@ export class Canvas extends Component {
 
         // World
         let world = new hittable_list();
-        world.add(new sphere(vec3.fromValues(0,0,-1), 0.5));
-        world.add(new sphere(vec3.fromValues(-1,0,-1), 0.25));
-        world.add(new sphere(vec3.fromValues(1,0,-1), 0.25));
-        world.add(new sphere(vec3.fromValues(0,1,-1), 0.25));
+        let sphere_material = new lambertian(vec3.fromValues(0,0,0.8),0);
+        let ground_material = new lambertian(vec3.fromValues(0.8,0.8,0.1));
+        let sphere_material2 = new metal(vec3.fromValues(0.3, 0.3, 0.3),0.1);
+        let sphere_material3 = new metal(vec3.fromValues(0.3, 0.3, 0.3),0);
+        let sphere_material4 = new metal(vec3.fromValues(0.3, 0.3, 0.3),0.6);
+        world.add(new sphere(vec3.fromValues(0,0,-1), 0.5, sphere_material2));
+        world.add(new sphere(vec3.fromValues(-1,0,-1), 0.25, sphere_material3));
+        world.add(new sphere(vec3.fromValues(1,0,-1), 0.25, sphere_material));
+        world.add(new sphere(vec3.fromValues(0,1,-1), 0.25, sphere_material4));
 
-        world.add(new sphere(vec3.fromValues(2,0,1), 0.5));
-        world.add(new sphere(vec3.fromValues(1,0,1), 0.25));
-        world.add(new sphere(vec3.fromValues(3,0,1), 0.25));
-        world.add(new sphere(vec3.fromValues(2,1,1), 0.25));
+        world.add(new sphere(vec3.fromValues(2,0,1), 0.5, sphere_material));
+        world.add(new sphere(vec3.fromValues(1,0,1), 0.25, sphere_material2));
+        world.add(new sphere(vec3.fromValues(3,0,1), 0.25, sphere_material3));
+        world.add(new sphere(vec3.fromValues(2,1,1), 0.25, sphere_material2));
 
-        world.add(new sphere(vec3.fromValues(-2,0,2), 0.5));
-        world.add(new sphere(vec3.fromValues(-1,0,2.4), 0.25));
-        world.add(new sphere(vec3.fromValues(-3,0,2.9), 0.25));
-        world.add(new sphere(vec3.fromValues(-2,1,3), 0.25));
+        world.add(new sphere(vec3.fromValues(-2,0,2), 0.5, sphere_material));
+        world.add(new sphere(vec3.fromValues(-1,0,2.4), 0.25, sphere_material2));
+        world.add(new sphere(vec3.fromValues(-3,0,2.9), 0.25, sphere_material3));
+        world.add(new sphere(vec3.fromValues(-2,1,3), 0.25, sphere_material4));
 
-        world.add(new sphere(vec3.fromValues(0,-100.5,-1), 100));
+        world.add(new sphere(vec3.fromValues(0,-200.5,-1), 200, ground_material));
 
         //Camera Properties
         const viewport_height = 2.0;
         const focal_length = 1.0
-        const cam = new camera(aspect_ratio, viewport_height, focal_length, color_b );
+        const cam = new camera(aspect_ratio, viewport_height, focal_length, camera_z );
 
         // Render
         let ctx = this.state.ctx;
@@ -149,7 +123,7 @@ export class Canvas extends Component {
                     let u = (i+Math.random())/(image_width+1);
                     let v = (j+Math.random())/(image_height+1);
                     const r = cam.get_ray(u, v);
-                    let temp_color = this.ray_color(r, Math.abs(color_b), world, max_depth);
+                    let temp_color = this.ray_color(r, world, max_depth);
                     accumulator[index] += temp_color[0];
                     accumulator[index+1] += temp_color[1];
                     accumulator[index+2] += temp_color[2];
@@ -195,7 +169,7 @@ export class Canvas extends Component {
     render() {
         return (
             <> 
-                <button onClick={()=>this.buildImage(1.0)} id = "buildImageBtn" className="btn">Build Image</button>
+                <button onClick={()=>this.buildImage(0.5)} id = "buildImageBtn" className="btn">Build Image</button>
                 <button onClick={()=>this.toggleAnimation()} id = "buildImageBtn2" className="btn">{this.state.animate?'Stop ':'Start ' }Animation</button>
                 <p id = "passValue"></p>
                 <p id = "timeTaken"></p>

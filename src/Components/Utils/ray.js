@@ -18,6 +18,10 @@ class ray{
         let out = vec3.create();
         return vec3.scaleAndAdd(out,this.orig, this.dir, t)
     }
+    copy = (r)=>{
+        this.orig = r.origin();
+        this.dir = r.direction();
+    }
 }
 
 export default ray;

@@ -14,10 +14,10 @@ The project is deployed [HERE](https://rajivnayanc.github.io/3D-rendering-engine
 - [X] Shading using Surface Normals
 - [X] Adding class for multiple objects 
 - [X] Implement Anti-aliasing 
-- [ ] Implement Camera Class 
+- [X] Implement Camera Class 
 - [ ] Different Materials 
-  - [ ] Diffuse (Lambertian) Material
-  - [ ] Metal Material
+  - [X] Diffuse (Lambertian) Material
+  - [X] Metal Material
   - [ ] Dielectrics
 - [ ] Implement Positionable Camera
 - [ ] Implemented De-focus blur
