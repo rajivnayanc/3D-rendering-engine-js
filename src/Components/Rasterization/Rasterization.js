@@ -385,8 +385,7 @@ class Rasterization extends Component {
 
     async init() {
         const file_name_input = document.getElementById("renderObjs")
-        const fileName = `/objs/${file_name_input.value}`
-        // const fileName = '/objs/cube.obj'
+        const fileName = `./objs/${file_name_input.value}`
         document.getElementById('startButton').style.display = "none";
         document.getElementById("renderObjs").style.display = "none"
         
