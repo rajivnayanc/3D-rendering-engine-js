@@ -142,7 +142,7 @@ class Rasterization extends Component {
         if (this.keyPressedBool.a) this.fYaw -= rotSpeed * elapsedTime;
         if (this.keyPressedBool.d) this.fYaw += rotSpeed * elapsedTime;
 
-        let light_direction = vec3.fromValues(0.5, 0.5, 0.5);
+        let light_direction = vec3.fromValues(0, -1, 1);
         vec3.scale(light_direction, light_direction, -1)
         light_direction = vec3.unit_vector(light_direction);
         let fNear = 0.05;
