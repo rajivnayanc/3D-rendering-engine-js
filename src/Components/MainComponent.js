@@ -1,30 +1,26 @@
-import React from 'react';
-import Canvas from './Canvas';
-class MainComponent extends React.Component {
-    constructor(props){
-        super(props);
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        const aspect = windowWidth/windowHeight;
-        const scale = 0.5;
-        const width = Math.floor(windowWidth*scale);
-        const height = Math.floor(windowHeight*scale);
-        this.state = {
-            aspectRatio:aspect,
-            width:width,
-            height:height,
-            samples_per_pixel:100
-        }
-    }
-    render(){
+import React, { Component } from 'react';
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Navigate
+} from 'react-router-dom';
+
+import RayTracing from './RayTracing/RayTracing';
+import HomePage from './HomePage/Home';
+import Rasterization from './Rasterization/Rasterization';
+
+class MainComponent extends Component {
+    render() {
         return (
-            <div className="container">
-                <div className="main-content">
-                    <div className="canvas-container">
-                        <Canvas samples_per_pixel={this.state.samples_per_pixel} width = {this.state.width} height={this.state.height}/>
-                    </div>
-                </div>
-            </div>
+            <Router>
+                <Routes>
+                    <Route path='/' element={<Navigate to='/home' replace />} />
+                    <Route path='/home' element={<HomePage />} />
+                    <Route path='/ray-tracing' element={<RayTracing />} />
+                    <Route path='/rasterization' element={<Rasterization />} />
+                </Routes>
+            </Router>
         );
     }
 

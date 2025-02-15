@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Rasterization Engine</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Main Body -->
+    <div class="container">
+        <div class="row">
+            <div class="canvasContainer">
+                <canvas id = "gameWindow"></canvas>
+            </div>
+        </div>
+        <select name="object" id="renderObjs">
+            <option value="VideoShip.obj">VideoShip</option>
+            <option value="Anime_charcter.obj">Anime Character</option>
+            <option value="Audi R8.obj">Audi R8</option>
+            <option value="wolf.obj">Wolf</option>
+            <option value="spaceship.obj">Spaceship</option>
+            <option value="mountains.obj">Mountains</option>
+            <option value="untitled.obj">Statue of Liberty</option>
+            <option value="house.obj">House</option>
+            <option value="axis.obj">Axis</option>
+            <option value="cube.obj">Cube</option>
+            <option value="teapot.obj">Tea Pot</option>
+            <option value="teapot2.obj">Tea Pot 2</option>
+            <option value="tavern2.obj">Tavern</option>
+            <option value="driller2.obj">Driller</option>
+          </select>
+        <button class="startButton" id="startButton">Start 3D CPU Rasterization Engine</button>
+    </div>
+    <!-- End Main Body -->
+    <!-- Scripts -->
+    <script type="module" src="vec3/common.js"></script>
+    <script type="module" src="vec3/vec3.js"></script>
+    <script type="module" src="matrix_util.js"></script>
+    <script type="module" src="planes.js"></script>
+    <script type="module" src="rasterizationEngine.js"></script>
+    <script type="module" src="main.js"></script>
+    <!-- End Scripts -->
+</body>
+</html>  
